@@ -66,10 +66,10 @@ export default function PostDetailPage() {
     "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&auto=format&fit=crop";
 
   return (
-    <main>
+    <main className="bg-[#F5F9FE]">
       {/* Article Header */}
       <article className="py-8 md:py-12">
-        <div className="container-wrapper max-w-4xl">
+        <div className="bg-white container-wrapper max-w-4xl border p-6 rounded-lg shadow-sm">
           {/* Breadcrumb */}
           <nav className="mb-4 text-sm text-gray-500">
             <Link to="/" className="hover:text-brand-600">
