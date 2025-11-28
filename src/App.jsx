@@ -3,6 +3,10 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import PostDetailPage from "./pages/PostDetailPage";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
+import PrivacyPage from "./pages/PrivacyPage";
+import HelpPage from "./pages/HelpPage";
 import "./App.css";
 
 function App() {
@@ -13,6 +17,10 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/post/:slug" element={<PostDetailPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/help" element={<HelpPage />} />
         </Routes>
       </div>
       <Footer />
