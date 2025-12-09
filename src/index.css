@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 html,
 body,
@@ -16,10 +14,7 @@ body {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
 .badge {
-  @apply inline-block px-2 py-1 text-xs font-medium rounded bg-brand-100 text-brand-700;
-}
-.prose-custom {
-  @apply prose prose-lg max-w-none prose-headings:font-semibold prose-img:rounded-xl prose-a:text-brand-600 hover:prose-a:text-brand-500;
+  @apply inline-block px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-700;
 }
 
 /* Scrollbar styling (webkit) */
