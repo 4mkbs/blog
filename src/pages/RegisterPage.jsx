@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -9,6 +10,7 @@ export default function RegisterPage() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -18,13 +20,10 @@ export default function RegisterPage() {
     if (password !== confirm) return setError("Passwords do not match.");
     try {
       setLoading(true);
-      // Uncomment when backend ready
-      // const res = await axios.post('/api/users', { name, email, password });
-      // localStorage.setItem('authToken', res.data.token);
-      await new Promise((r) => setTimeout(r, 700));
+      await register(name, email, password);
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      setError(err.message || "Registration failed");
     } finally {
       setLoading(false);
     }

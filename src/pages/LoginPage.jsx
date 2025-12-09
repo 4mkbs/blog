@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -7,6 +8,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -15,14 +17,10 @@ export default function LoginPage() {
       return setError("Please provide email and password.");
     try {
       setLoading(true);
-      // Uncomment and change endpoint when backend ready
-      // const res = await axios.post('/api/users/login', { email, password });
-      // localStorage.setItem('authToken', res.data.token);
-      // For now, fake success after a short delay
-      await new Promise((r) => setTimeout(r, 600));
+      await login(email, password);
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      setError(err.message || "Login failed");
     } finally {
       setLoading(false);
     }

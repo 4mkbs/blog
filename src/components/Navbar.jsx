@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
+  const { user, logout } = useAuth();
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -123,46 +125,171 @@ export default function Navbar() {
             className="hidden peer-checked:block absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded shadow-md z-50"
           >
             <nav className="flex flex-col p-2">
-              <Link
-                to="/about"
-                role="menuitem"
-                className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                onClick={() =>
-                  (document.getElementById("nav-menu-toggle").checked = false)
-                }
-              >
-                About
-              </Link>
-              <Link
-                to="/contact"
-                role="menuitem"
-                className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                onClick={() =>
-                  (document.getElementById("nav-menu-toggle").checked = false)
-                }
-              >
-                Contact
-              </Link>
-              <Link
-                to="/privacy"
-                role="menuitem"
-                className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                onClick={() =>
-                  (document.getElementById("nav-menu-toggle").checked = false)
-                }
-              >
-                Privacy
-              </Link>
-              <Link
-                to="/help"
-                role="menuitem"
-                className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                onClick={() =>
-                  (document.getElementById("nav-menu-toggle").checked = false)
-                }
-              >
-                Help
-              </Link>
+              {user ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    📝 ড্যাশবোর্ড
+                  </Link>
+                  <Link
+                    to="/profile"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    👤 প্রোফাইল
+                  </Link>
+                  <hr className="my-2" />
+                  <Link
+                    to="/about"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    আমাদের সম্পর্কে
+                  </Link>
+                  <Link
+                    to="/contact"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    যোগাযোগ
+                  </Link>
+                  <Link
+                    to="/privacy"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    গোপনীয়তা
+                  </Link>
+                  <Link
+                    to="/help"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    সাহায্য
+                  </Link>
+                  <hr className="my-2" />
+                  <button
+                    onClick={() => {
+                      logout();
+                      document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false;
+                    }}
+                    className="px-3 py-2 rounded text-sm hover:bg-red-50 text-red-600 font-medium"
+                  >
+                    লগ আউট
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100 font-medium text-blue-600"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    লগইন
+                  </Link>
+                  <Link
+                    to="/register"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100 font-medium text-green-600"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    রেজিস্টার
+                  </Link>
+                  <hr className="my-2" />
+                  <Link
+                    to="/about"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    আমাদের সম্পর্কে
+                  </Link>
+                  <Link
+                    to="/contact"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    যোগাযোগ
+                  </Link>
+                  <Link
+                    to="/privacy"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    গোপনীয়তা
+                  </Link>
+                  <Link
+                    to="/help"
+                    role="menuitem"
+                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
+                    onClick={() =>
+                      (document.getElementById(
+                        "nav-menu-toggle"
+                      ).checked = false)
+                    }
+                  >
+                    সাহায্য
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </div>

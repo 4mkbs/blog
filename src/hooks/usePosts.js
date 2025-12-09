@@ -1,13 +1,12 @@
 import { useState, useEffect } from "react";
-// import { postsAPI } from '../services/api';
 import {
   dummyPosts,
   getRelatedPosts as getRelatedPostsData,
 } from "../data/dummyData";
 
-// Using dummy data for now - uncomment API calls when backend is ready
-const USE_DUMMY_DATA = true;
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
+// Fetch from API but keep dummy data as fallback for hybrid approach
 export function usePosts() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,18 +17,34 @@ export function usePosts() {
       try {
         setLoading(true);
 
-        if (USE_DUMMY_DATA) {
-          // Simulate network delay
-          await new Promise((resolve) => setTimeout(resolve, 500));
-          setPosts(dummyPosts);
-        } else {
-          // const response = await postsAPI.getAll(params);
-          // setPosts(response.data);
+        // Fetch real posts from backend
+        const response = await fetch(`${API_BASE}/posts`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch posts from server");
         }
 
+        const apiPosts = await response.json();
+
+        // Combine: dummy posts first (for consistent landing page), then new user posts
+        const combinedPosts = [...dummyPosts, ...apiPosts];
+
+        // Remove duplicates by slug (in case any match)
+        const uniquePosts = Array.from(
+          new Map(combinedPosts.map((p) => [p.slug || p._id, p])).values()
+        );
+
+        // Sort by date - newest first
+        uniquePosts.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        setPosts(uniquePosts);
         setError(null);
       } catch (err) {
-        setError(err.message || "Failed to fetch posts");
+        console.error("Error fetching posts:", err);
+        // Fallback to dummy data if API fails
+        setPosts(dummyPosts);
+        setError(null); // Don't show error if we have fallback data
       } finally {
         setLoading(false);
       }
@@ -52,28 +67,46 @@ export function usePost(slugOrId) {
       try {
         setLoading(true);
 
-        if (USE_DUMMY_DATA) {
-          // Simulate network delay
-          await new Promise((resolve) => setTimeout(resolve, 300));
-          const foundPost = dummyPosts.find(
-            (p) => p.slug === slugOrId || p._id === slugOrId
-          );
-          if (foundPost) {
-            setPost(foundPost);
+        let response;
+        let data;
+
+        // Try slug-based endpoint first (for new posts)
+        try {
+          response = await fetch(`${API_BASE}/posts/slug/${slugOrId}`);
+          if (response.ok) {
+            data = await response.json();
+            setPost(data);
             setError(null);
-          } else {
-            setError("Post not found");
+            setLoading(false);
+            return;
           }
+        } catch (err) {
+          // Slug endpoint failed, try ID endpoint
+        }
+
+        // Try ID endpoint
+        try {
+          response = await fetch(`${API_BASE}/posts/${slugOrId}`);
+          if (response.ok) {
+            data = await response.json();
+            setPost(data);
+            setError(null);
+            setLoading(false);
+            return;
+          }
+        } catch (err) {
+          // ID endpoint failed, try dummy data
+        }
+
+        // Fallback to dummy data
+        const foundPost = dummyPosts.find(
+          (p) => p.slug === slugOrId || p._id === slugOrId
+        );
+        if (foundPost) {
+          setPost(foundPost);
+          setError(null);
         } else {
-          // Try slug first, fallback to ID
-          // let response;
-          // try {
-          //   response = await postsAPI.getBySlug(slugOrId);
-          // } catch {
-          //   response = await postsAPI.getById(slugOrId);
-          // }
-          // setPost(response.data);
-          // setError(null);
+          setError("Post not found");
         }
       } catch (err) {
         setError(err.message || "Failed to fetch post");
@@ -96,15 +129,22 @@ export function useRelatedPosts(postId) {
 
     const fetchRelated = async () => {
       try {
-        if (USE_DUMMY_DATA) {
-          // Simulate network delay
-          await new Promise((resolve) => setTimeout(resolve, 300));
-          const related = getRelatedPostsData(postId, dummyPosts);
-          setPosts(related);
-        } else {
-          // const response = await postsAPI.getRelated(postId);
-          // setPosts(response.data);
+        // Try to fetch from API
+        try {
+          const response = await fetch(`${API_BASE}/posts/${postId}/related`);
+          if (response.ok) {
+            const data = await response.json();
+            setPosts(data);
+            setLoading(false);
+            return;
+          }
+        } catch (err) {
+          // API failed, fallback to dummy data
         }
+
+        // Fallback to dummy data
+        const related = getRelatedPostsData(postId, dummyPosts);
+        setPosts(related);
       } catch (err) {
         console.error("Related posts error:", err);
         setPosts([]);
