@@ -12,7 +12,7 @@ export default function PostDetailPage() {
 
   useEffect(() => {
     if (post?.title) {
-      document.title = `${post.title} - roar.media`;
+      document.title = `${post.title} - mkbs.media`;
     }
     window.scrollTo(0, 0);
   }, [post]);

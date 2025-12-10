@@ -1,6 +1,6 @@
 # Blog Website - Modern React + Tailwind CSS
 
-A beautiful, responsive blog platform inspired by roar.media, built with React, Tailwind CSS, and Express.js.
+A beautiful, responsive blog platform inspired by mkbs.media, built with React, Tailwind CSS, and Express.js.
 
 ## ✨ Features
 

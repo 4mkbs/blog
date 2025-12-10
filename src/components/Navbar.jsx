@@ -1,14 +1,40 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useEffect, useRef, useState } from "react";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+      setMenuOpen(false);
+    }
+  };
+
+  // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <span className="text-2xl font-extrabold text-gray-900">Roar</span>
+          <span className="text-2xl font-extrabold text-gray-900">mkbs</span>
           <span className="text-xs text-gray-400">media</span>
         </Link>
 
@@ -16,7 +42,7 @@ export default function Navbar() {
         <form
           className="hidden sm:flex items-center gap-2 bg-gray-100 rounded px-2 py-1 transition-all duration-150"
           role="search"
-          onSubmit={(e) => e.preventDefault()}
+          onSubmit={handleSearch}
         >
           <button
             type="submit"
@@ -46,6 +72,8 @@ export default function Navbar() {
             id="nav-search"
             type="search"
             name="q"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             aria-label="Search"
             placeholder="Search stories, topics..."
             className="w-56 bg-transparent text-sm outline-none placeholder-gray-500"
@@ -53,7 +81,7 @@ export default function Navbar() {
         </form>
 
         {/* Right side - language + menu */}
-        <div className="relative flex items-center gap-3">
+        <div ref={menuRef} className="relative flex items-center gap-3">
           {/* Mobile search icon (visible on small screens) */}
           <button
             className="sm:hidden p-2 rounded hover:bg-gray-100"
@@ -74,7 +102,7 @@ export default function Navbar() {
             </svg>
           </button>
 
-          <div className="flex items-center gap-2 px-3 py-1 rounded text-sm bg-gray-100">
+          {/* <div className="flex items-center gap-2 px-3 py-1 rounded text-sm bg-gray-100">
             <span className="font-medium text-sm">Bangla</span>
             <select
               name="language"
@@ -86,19 +114,15 @@ export default function Navbar() {
               <option value="bn">BN</option>
               <option value="en">EN</option>
             </select>
-          </div>
+          </div> */}
 
-          {/* Menu toggle (checkbox + peer) */}
-          <input
-            id="nav-menu-toggle"
-            type="checkbox"
-            className="sr-only peer"
-          />
-          <label
-            htmlFor="nav-menu-toggle"
+          <button
+            type="button"
             className="p-2 hover:bg-gray-100 rounded cursor-pointer"
             aria-haspopup="true"
             aria-controls="nav-menu"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((prev) => !prev)}
           >
             <span className="sr-only">Toggle menu</span>
             <svg
@@ -115,14 +139,16 @@ export default function Navbar() {
                 d="M4 6h16M4 12h16M4 18h16"
               />
             </svg>
-          </label>
+          </button>
 
           {/* Dropdown menu positioned under the toggle */}
           <div
             id="nav-menu"
             role="menu"
             aria-label="Primary"
-            className="hidden peer-checked:block absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded shadow-md z-50"
+            className={`${
+              menuOpen ? "block" : "hidden"
+            } absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded shadow-md z-50`}
           >
             <nav className="flex flex-col p-2">
               {user ? (
@@ -131,11 +157,7 @@ export default function Navbar() {
                     to="/dashboard"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     📝 ড্যাশবোর্ড
                   </Link>
@@ -143,11 +165,7 @@ export default function Navbar() {
                     to="/profile"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     👤 প্রোফাইল
                   </Link>
@@ -156,11 +174,7 @@ export default function Navbar() {
                     to="/about"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     আমাদের সম্পর্কে
                   </Link>
@@ -168,11 +182,7 @@ export default function Navbar() {
                     to="/contact"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     যোগাযোগ
                   </Link>
@@ -180,11 +190,7 @@ export default function Navbar() {
                     to="/privacy"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     গোপনীয়তা
                   </Link>
@@ -192,11 +198,7 @@ export default function Navbar() {
                     to="/help"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     সাহায্য
                   </Link>
@@ -204,9 +206,7 @@ export default function Navbar() {
                   <button
                     onClick={() => {
                       logout();
-                      document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false;
+                      setMenuOpen(false);
                     }}
                     className="px-3 py-2 rounded text-sm hover:bg-red-50 text-red-600 font-medium"
                   >
@@ -219,11 +219,7 @@ export default function Navbar() {
                     to="/login"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100 font-medium text-blue-600"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     লগইন
                   </Link>
@@ -231,11 +227,7 @@ export default function Navbar() {
                     to="/register"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100 font-medium text-green-600"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     রেজিস্টার
                   </Link>
@@ -244,11 +236,7 @@ export default function Navbar() {
                     to="/about"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     আমাদের সম্পর্কে
                   </Link>
@@ -256,11 +244,7 @@ export default function Navbar() {
                     to="/contact"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     যোগাযোগ
                   </Link>
@@ -268,11 +252,7 @@ export default function Navbar() {
                     to="/privacy"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     গোপনীয়তা
                   </Link>
@@ -280,11 +260,7 @@ export default function Navbar() {
                     to="/help"
                     role="menuitem"
                     className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() =>
-                      (document.getElementById(
-                        "nav-menu-toggle"
-                      ).checked = false)
-                    }
+                    onClick={() => setMenuOpen(false)}
                   >
                     সাহায্য
                   </Link>
