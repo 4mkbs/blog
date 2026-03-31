@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
+import { sanitizeText } from "../utils/sanitize";
 
-export default function PostCard({ post, variant = "small" }) {
+export default function PostCard({ post }) {
   const { _id, slug, title, excerpt, coverImage, category, author, createdAt } =
     post;
   const postUrl = slug ? `/post/${slug}` : `/post/${_id}`;
@@ -42,10 +43,12 @@ export default function PostCard({ post, variant = "small" }) {
             </div>
 
             <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-2 leading-snug line-clamp-2">
-              {title}
+              {sanitizeText(title)}
             </h3>
 
-            <p className="text-sm text-gray-600 mb-2 line-clamp-3">{excerpt}</p>
+            <p className="text-sm text-gray-600 mb-2 line-clamp-3">
+              {sanitizeText(excerpt)}
+            </p>
           </div>
 
           <div className="flex items-center gap-3 pt-2 mt-auto">

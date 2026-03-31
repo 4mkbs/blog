@@ -80,7 +80,7 @@ export function usePost(slugOrId) {
             setLoading(false);
             return;
           }
-        } catch (err) {
+        } catch {
           // Slug endpoint failed, try ID endpoint
         }
 
@@ -94,7 +94,7 @@ export function usePost(slugOrId) {
             setLoading(false);
             return;
           }
-        } catch (err) {
+        } catch {
           // ID endpoint failed, try dummy data
         }
 
@@ -138,7 +138,7 @@ export function useRelatedPosts(postId) {
             setLoading(false);
             return;
           }
-        } catch (err) {
+        } catch {
           // API failed, fallback to dummy data
         }
 

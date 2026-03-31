@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import { postsAPI } from "../services/api";
 
@@ -18,12 +18,7 @@ export default function DashboardPage() {
     coverImage: "",
   });
 
-  useEffect(() => {
-    document.title = "Dashboard — My Posts";
-    fetchPosts();
-  }, []);
-
-  const fetchPosts = async () => {
+  const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
       const res = await postsAPI.getAll();
@@ -34,7 +29,12 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user._id]);
+
+  useEffect(() => {
+    document.title = "Dashboard — My Posts";
+    fetchPosts();
+  }, [fetchPosts]);
 
   const startCreate = () => {
     setEditing(null);

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { sanitizeText } from "../utils/sanitize";
 
 export default function FeaturedPostCard({ post }) {
   const { _id, slug, title, excerpt, coverImage, category, author, createdAt } =
@@ -38,12 +39,12 @@ export default function FeaturedPostCard({ post }) {
         {/* Content Section */}
         <div className="p-5">
           <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 leading-tight group-hover:text-blue-600 transition-colors line-clamp-3">
-            {title}
+            {sanitizeText(title)}
           </h2>
 
           {excerpt && (
             <p className="text-sm text-gray-600 mb-4 line-clamp-4 leading-relaxed">
-              {excerpt}
+              {sanitizeText(excerpt)}
             </p>
           )}
 

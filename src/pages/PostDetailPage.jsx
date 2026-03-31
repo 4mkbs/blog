@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { sanitizeHtml, sanitizeText } from "../utils/sanitize";
 import { usePost, useRelatedPosts } from "../hooks/usePosts";
 import RelatedPosts from "../components/RelatedPosts";
 
@@ -92,7 +93,7 @@ export default function PostDetailPage() {
 
           {/* Title */}
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-            {title}
+            {sanitizeText(title)}
           </h1>
 
           {/* Meta */}
@@ -127,7 +128,7 @@ export default function PostDetailPage() {
           <div className="prose-custom">
             <div
               dangerouslySetInnerHTML={{
-                __html: content.replace(/\n/g, "<br/>"),
+                __html: sanitizeHtml(content.replace(/\n/g, "<br/>")),
               }}
             />
           </div>
