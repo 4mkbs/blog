@@ -49,20 +49,20 @@ export default function ProfilePage() {
 
   return (
     <main className="profile-page">
-      <div className="profile-container" style={{ maxWidth: 520 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 32, letterSpacing: "-0.3px" }}>
-          Profile Settings
-        </h1>
+      <div className="profile-container profile-settings">
+        <header className="profile-settings-header">
+          <p className="content-kicker">Account</p>
+          <h1>Profile settings</h1>
+          <p>Update your public profile details and author information.</p>
+        </header>
 
-        {error && <div className="auth-error" style={{ marginBottom: 16 }}>{error}</div>}
-        {message && (
-          <div className="dashboard-message success" style={{ marginBottom: 16 }}>{message}</div>
-        )}
+        {error && <div className="auth-error">{error}</div>}
+        {message && <div className="dashboard-message success">{message}</div>}
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <form onSubmit={handleSubmit} className="profile-settings-form">
           {/* Avatar preview */}
-          <div style={{ textAlign: "center", marginBottom: 8 }}>
-            <div className="profile-avatar-large" style={{ margin: "0 auto 12px" }}>
+          <div className="profile-avatar-preview">
+            <div className="profile-avatar-large">
               {form.avatar ? (
                 <img src={form.avatar} alt="" />
               ) : (
@@ -73,23 +73,22 @@ export default function ProfilePage() {
 
           {/* Email (read-only) */}
           <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
-              Email
-            </label>
+            <label className="field-label">Email</label>
             <input
               type="email"
               value={user.email}
               disabled
               className="auth-input"
-              style={{ background: "var(--color-bg-alt)", cursor: "not-allowed" }}
+              style={{
+                background: "var(--color-bg-alt)",
+                cursor: "not-allowed",
+              }}
             />
           </div>
 
           {/* Name */}
           <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
-              Name
-            </label>
+            <label className="field-label">Name</label>
             <input
               type="text"
               value={form.name}
@@ -101,9 +100,7 @@ export default function ProfilePage() {
 
           {/* Avatar URL */}
           <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
-              Avatar URL
-            </label>
+            <label className="field-label">Avatar URL</label>
             <input
               type="url"
               value={form.avatar}
@@ -115,9 +112,7 @@ export default function ProfilePage() {
 
           {/* Bio */}
           <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
-              Short Bio (160 chars)
-            </label>
+            <label className="field-label">Short bio (160 chars)</label>
             <input
               type="text"
               value={form.bio}
@@ -130,9 +125,7 @@ export default function ProfilePage() {
 
           {/* About */}
           <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
-              About
-            </label>
+            <label className="field-label">About</label>
             <textarea
               value={form.about}
               onChange={(e) => setForm({ ...form, about: e.target.value })}
@@ -144,9 +137,7 @@ export default function ProfilePage() {
 
           {/* Website */}
           <div>
-            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
-              Website
-            </label>
+            <label className="field-label">Website</label>
             <input
               type="url"
               value={form.website}
@@ -156,7 +147,11 @@ export default function ProfilePage() {
             />
           </div>
 
-          <button type="submit" className="btn-primary" disabled={loading} style={{ justifyContent: "center", padding: "12px 24px", fontSize: 16, marginTop: 8 }}>
+          <button
+            type="submit"
+            className="btn-primary profile-save-btn"
+            disabled={loading}
+          >
             {loading ? "Updating..." : "Save Changes"}
           </button>
         </form>

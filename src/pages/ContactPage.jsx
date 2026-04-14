@@ -1,139 +1,138 @@
 export default function ContactPage() {
+  const channels = [
+    {
+      title: "Email",
+      value: "hello@mkbs.media",
+      hint: "Best for product feedback, editorial ideas, and collaboration.",
+      href: "mailto:hello@mkbs.media",
+    },
+    {
+      title: "Response time",
+      value: "Usually within 24 hours",
+      hint: "We prioritize urgent technical issues and publishing-related queries.",
+    },
+  ];
+
   return (
-    <main className="max-w-5xl mx-auto px-4 sm:px-6 py-12 space-y-12">
-      <header className="space-y-3 text-center">
-        <p className="text-sm font-semibold text-indigo-600">Get in touch</p>
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">
-          We'd love to hear from you
-        </h1>
-        <p className="text-gray-700 leading-relaxed max-w-2xl mx-auto">
-          Have feedback, questions, or just want to say hello? Drop us a line
-          and we'll get back to you as soon as we can.
-        </p>
-      </header>
-
-      <div className="grid gap-8 md:grid-cols-[2fr,1fr]">
-        <form className="space-y-5 bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-semibold text-gray-900 mb-2"
-            >
-              Full name
-            </label>
-            <input
-              id="name"
-              type="text"
-              required
-              placeholder="Your name"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-semibold text-gray-900 mb-2"
-            >
-              Email address
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              placeholder="you@example.com"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="subject"
-              className="block text-sm font-semibold text-gray-900 mb-2"
-            >
-              Subject
-            </label>
-            <input
-              id="subject"
-              type="text"
-              required
-              placeholder="What is this about?"
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="message"
-              className="block text-sm font-semibold text-gray-900 mb-2"
-            >
-              Message
-            </label>
-            <textarea
-              id="message"
-              required
-              rows={5}
-              placeholder="Your message here..."
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent resize-none"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-indigo-500 text-white font-semibold py-2 hover:bg-indigo-400 transition"
-          >
-            Send message
-          </button>
-          <p className="text-xs text-gray-500 text-center">
-            We'll respond within 24 hours.
+    <main className="content-page">
+      <section className="content-shell">
+        <header className="content-hero centered">
+          <p className="content-kicker">Get in touch</p>
+          <h1 className="content-title">
+            Let us know what you are building or struggling with
+          </h1>
+          <p className="content-subtitle">
+            Send feedback, report issues, or propose collaborations. We read
+            every message.
           </p>
-        </form>
+        </header>
 
-        <div className="space-y-5">
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3">
-            <h3 className="text-sm font-semibold text-gray-900">Email</h3>
-            <a
-              href="mailto:hello@mkbs.media"
-              className="text-indigo-600 font-semibold hover:text-indigo-500"
-            >
-              hello@mkbs.media
-            </a>
-            <p className="text-xs text-gray-600">
-              Best for longer queries and feedback.
+        <section className="content-two-col contact-layout">
+          <form className="form-panel" onSubmit={(e) => e.preventDefault()}>
+            <h2>Send a message</h2>
+            <p className="panel-subtitle">
+              We typically reply in one business day.
             </p>
-          </div>
 
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm space-y-3">
-            <h3 className="text-sm font-semibold text-gray-900">Follow us</h3>
-            <div className="flex gap-3">
-              {[
-                {
-                  label: "X",
-                  href: "https://twitter.com/mkbs_media",
-                  badge: "X",
-                },
-                { label: "Facebook", href: "https://facebook.com", badge: "f" },
-                { label: "GitHub", href: "https://github.com", badge: "gh" },
-              ].map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={item.label}
-                  title={item.label}
-                  className="w-10 h-10 rounded-full bg-gray-100 text-gray-700 text-xs font-semibold flex items-center justify-center hover:bg-indigo-50 hover:text-indigo-600 transition"
-                >
-                  {item.badge}
-                </a>
-              ))}
+            <div>
+              <label htmlFor="name" className="field-label">
+                Full name
+              </label>
+              <input
+                id="name"
+                type="text"
+                required
+                placeholder="Your name"
+                className="field-input"
+              />
             </div>
-            <p className="text-xs text-gray-600">
-              Quick updates and community chat.
+
+            <div>
+              <label htmlFor="email" className="field-label">
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                placeholder="you@example.com"
+                className="field-input"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="subject" className="field-label">
+                Subject
+              </label>
+              <input
+                id="subject"
+                type="text"
+                required
+                placeholder="What is this about?"
+                className="field-input"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="message" className="field-label">
+                Message
+              </label>
+              <textarea
+                id="message"
+                required
+                rows={5}
+                placeholder="Your message here..."
+                className="field-input field-textarea"
+              />
+            </div>
+
+            <button type="submit" className="btn-primary full">
+              Send message
+            </button>
+            <p className="panel-footnote">
+              By submitting, you agree to polite and constructive communication.
             </p>
-          </div>
-        </div>
-      </div>
+          </form>
+
+          <aside className="side-stack">
+            {channels.map((channel) => (
+              <article key={channel.title} className="info-card compact">
+                <h3>{channel.title}</h3>
+                {channel.href ? (
+                  <a href={channel.href} className="info-link">
+                    {channel.value}
+                  </a>
+                ) : (
+                  <p className="info-strong">{channel.value}</p>
+                )}
+                <p>{channel.hint}</p>
+              </article>
+            ))}
+
+            <article className="info-card compact">
+              <h3>Social</h3>
+              <div className="social-row">
+                {[
+                  { label: "X", href: "https://twitter.com/mkbs_media" },
+                  { label: "Facebook", href: "https://facebook.com" },
+                  { label: "GitHub", href: "https://github.com" },
+                ].map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="social-chip"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+              <p>Follow for updates, releases, and writing tips.</p>
+            </article>
+          </aside>
+        </section>
+      </section>
     </main>
   );
 }

@@ -14,7 +14,11 @@ export default function DashboardPage() {
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await postsAPI.getAll({ author: user._id, status: tab, limit: 50 });
+      const res = await postsAPI.getAll({
+        author: user._id,
+        status: tab,
+        limit: 50,
+      });
       setPosts(res.data.posts || []);
     } catch (err) {
       setError(err.message || "Failed to fetch posts");
@@ -41,18 +45,21 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="dashboard-page">
-      <div className="dashboard-container">
-        {/* Header */}
-        <div className="dashboard-header">
-          <h1>Your Stories</h1>
+    <main className="content-page">
+      <section className="content-shell narrow dashboard-shell">
+
+        <div className="dashboard-header dashboard-header-card">
+          <div>
+            <h2>Your Stories</h2>
+            <p>Switch between published stories and drafts.</p>
+          </div>
           <Link to="/write" className="btn-primary">
             Write a Story
           </Link>
         </div>
 
         {/* Tabs */}
-        <div className="dashboard-tabs">
+        <div className="dashboard-tabs dashboard-tabs-card">
           <button
             className={`dashboard-tab ${tab === "published" ? "active" : ""}`}
             onClick={() => setTab("published")}
@@ -73,29 +80,34 @@ export default function DashboardPage() {
 
         {/* Loading */}
         {loading && (
-          <div className="dashboard-loading">
+          <div className="dashboard-loading dashboard-card">
             <div className="spinner" />
           </div>
         )}
 
         {/* Posts list */}
         {!loading && posts.length === 0 && (
-          <div className="dashboard-empty">
+          <div className="dashboard-empty dashboard-card">
             <p>
               {tab === "draft"
                 ? "No drafts yet."
                 : "You haven't published any stories yet."}
             </p>
-            <Link to="/write" className="btn-secondary">Start Writing</Link>
+            <Link to="/write" className="btn-secondary">
+              Start Writing
+            </Link>
           </div>
         )}
 
         {!loading && posts.length > 0 && (
-          <div className="dashboard-posts">
+          <div className="dashboard-posts dashboard-post-list">
             {posts.map((post) => (
               <div key={post._id} className="dashboard-post-card">
                 <div className="dashboard-post-info">
-                  <Link to={`/post/${post.slug}`} className="dashboard-post-title">
+                  <Link
+                    to={`/post/${post.slug}`}
+                    className="dashboard-post-title"
+                  >
                     {post.title}
                   </Link>
                   <p className="dashboard-post-excerpt">
@@ -119,10 +131,16 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="dashboard-post-actions">
-                  <Link to={`/write/${post._id}`} className="btn-secondary small">
+                  <Link
+                    to={`/write/${post._id}`}
+                    className="btn-secondary small"
+                  >
                     Edit
                   </Link>
-                  <button onClick={() => remove(post._id)} className="btn-danger small">
+                  <button
+                    onClick={() => remove(post._id)}
+                    className="btn-danger small"
+                  >
                     Delete
                   </button>
                 </div>
@@ -130,7 +148,7 @@ export default function DashboardPage() {
             ))}
           </div>
         )}
-      </div>
+      </section>
     </main>
   );
 }

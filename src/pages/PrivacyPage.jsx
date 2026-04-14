@@ -38,47 +38,38 @@ export default function PrivacyPage() {
   ];
 
   return (
-    <main className="max-w-4xl mx-auto px-4 sm:px-6 py-12 space-y-12">
-      <header className="space-y-3">
-        <p className="text-sm font-semibold text-indigo-600">Legal</p>
-        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">
-          Privacy Policy
-        </h1>
-        <p className="text-gray-700 leading-relaxed">
-          We respect your privacy. This policy explains how we collect, use, and
-          protect your information.
-        </p>
-        <p className="text-xs text-gray-500">Last updated: December 10, 2025</p>
-      </header>
+    <main className="content-page">
+      <section className="content-shell narrow">
+        <header className="content-hero">
+          <p className="content-kicker">Legal</p>
+          <h1 className="content-title">Privacy policy</h1>
+          <p className="content-subtitle">
+            This page explains what data we collect, how we use it, and what
+            rights you have.
+          </p>
+          <p className="content-meta">Last updated: March 31, 2026</p>
+        </header>
 
-      <div className="space-y-4">
-        {sections.map((section, idx) => (
-          <article
-            key={idx}
-            className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm space-y-2"
-          >
-            <h2 className="text-lg font-semibold text-gray-900">
-              {section.title}
-            </h2>
-            <p className="text-gray-700 leading-relaxed text-sm">
-              {section.content}
-            </p>
-          </article>
-        ))}
-      </div>
+        <div className="legal-list">
+          {sections.map((section, idx) => (
+            <article key={idx} className="info-card">
+              <h2>{section.title}</h2>
+              <p>{section.content}</p>
+            </article>
+          ))}
+        </div>
 
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900">Questions?</h2>
-        <p className="text-gray-700 leading-relaxed">
-          If you have concerns about your privacy or how we handle your data,
-          please reach out via the Contact page. We'll respond within 24 hours.
-        </p>
-        <a
-          href="/contact"
-          className="inline-block rounded-lg bg-indigo-500 text-white font-semibold px-4 py-2 hover:bg-indigo-400 transition"
-        >
-          Contact us
-        </a>
+        <section className="cta-card">
+          <h2>Questions?</h2>
+          <p>
+            If you have concerns about your privacy or how we handle your data,
+            please reach out via the Contact page. We'll respond within 24
+            hours.
+          </p>
+          <a href="/contact" className="btn-primary">
+            Contact us
+          </a>
+        </section>
       </section>
     </main>
   );
