@@ -5,6 +5,8 @@ import ScrollToTop from "./components/ScrollToTop";
 import PrivateRoute from "./components/PrivateRoute";
 import HomePage from "./pages/HomePage";
 import PostDetailPage from "./pages/PostDetailPage";
+import WritePage from "./pages/WritePage";
+import UserProfilePage from "./pages/UserProfilePage";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import PrivacyPage from "./pages/PrivacyPage";
@@ -17,15 +19,32 @@ import "./App.css";
 
 function App() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="app">
       <ScrollToTop />
       <Navbar />
-      <div className="flex-1">
+      <div className="app-content">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/post/:slug" element={<PostDetailPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/@:username" element={<UserProfilePage />} />
+          <Route
+            path="/write"
+            element={
+              <PrivateRoute>
+                <WritePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/write/:id"
+            element={
+              <PrivateRoute>
+                <WritePage />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={

@@ -1,50 +1,20 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useEffect, useRef, useState, useMemo } from "react";
-import { usePosts } from "../hooks/usePosts";
+import { useState, useRef, useEffect } from "react";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const { posts } = usePosts();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const menuRef = useRef(null);
-  const searchRef = useRef(null);
 
-  // Generate search suggestions based on posts
-  const searchSuggestions = useMemo(() => {
-    if (!searchQuery.trim() || !posts.length) return [];
-
-    const query = searchQuery.toLowerCase();
-    const suggestions = new Set();
-
-    posts.forEach((post) => {
-      if (post.title?.toLowerCase().includes(query)) {
-        suggestions.add(post.title);
-      }
-      if (post.category?.toLowerCase().includes(query)) {
-        suggestions.add(post.category);
-      }
-      post.tags?.forEach((tag) => {
-        if (tag.toLowerCase().includes(query)) {
-          suggestions.add(tag);
-        }
-      });
-    });
-
-    return Array.from(suggestions).slice(0, 5);
-  }, [searchQuery, posts]);
-
-  const handleSearch = (e, suggestionText = null) => {
+  const handleSearch = (e) => {
     e.preventDefault();
-    const finalQuery = suggestionText || searchQuery.trim();
-    if (finalQuery) {
-      navigate(`/?search=${encodeURIComponent(finalQuery)}`);
+    if (searchQuery.trim()) {
+      navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
-      setShowSuggestions(false);
       setMenuOpen(false);
       setMobileSearchOpen(false);
     }
@@ -56,344 +26,150 @@ export default function Navbar() {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false);
       }
-      // Close suggestions if clicking outside any search area
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
-        const mobileSearchInput = document.querySelector('.sm\\:hidden input[type="search"]');
-        const desktopSearchInput = document.querySelector('#nav-search');
-        if (e.target !== mobileSearchInput && e.target !== desktopSearchInput) {
-          setShowSuggestions(false);
-        }
-      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-      {/* Mobile search input (visible on small screens when active) */}
+    <header className="navbar">
+      {/* Mobile search */}
       {mobileSearchOpen && (
-        <div className="sm:hidden border-b border-gray-100 px-4 py-3" ref={searchRef}>
-          <form onSubmit={handleSearch} className="flex items-center gap-2">
+        <div className="navbar-mobile-search">
+          <form onSubmit={handleSearch} className="navbar-search-form">
             <input
               type="search"
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setShowSuggestions(e.target.value.trim().length > 0);
-              }}
-              onFocus={() => setShowSuggestions(searchQuery.trim().length > 0)}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search stories..."
-              className="flex-1 bg-gray-100 px-3 py-2 text-sm rounded outline-none focus:ring-2 focus:ring-indigo-400"
               autoFocus
             />
-            <button
-              type="submit"
-              className="p-2 text-indigo-600 hover:text-indigo-700"
-              aria-label="Search"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
+            <button type="submit" aria-label="Search">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
               </svg>
             </button>
           </form>
-          
-          {/* Search suggestions dropdown for mobile */}
-          {showSuggestions && searchSuggestions.length > 0 && (
-            <div className="mt-2 bg-gray-50 border border-gray-200 rounded max-h-48 overflow-y-auto">
-              {searchSuggestions.map((suggestion, idx) => (
-                <button
-                  key={idx}
-                  onClick={(e) => handleSearch(e, suggestion)}
-                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-200 last:border-b-0"
-                >
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    {suggestion}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       )}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+
+      <div className="navbar-inner">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <span className="text-2xl font-extrabold text-gray-900">mkbs</span>
-          <span className="text-xs text-gray-400">media</span>
+        <Link to="/" className="navbar-logo">
+          <span className="logo-text">mkbs</span>
+          <span className="logo-suffix">.media</span>
         </Link>
 
-        {/* Center: Search (hidden on small screens) */}
-        <div className="relative" ref={searchRef}>
-          <form
-            className="hidden sm:flex items-center gap-2 bg-gray-100 rounded px-2 py-1 transition-all duration-150"
-            role="search"
-            onSubmit={handleSearch}
-          >
-            <button
-              type="submit"
-              className="p-1 text-gray-600"
-              aria-label="Search"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-            </button>
+        {/* Desktop search */}
+        <form
+          className="navbar-search desktop-only"
+          role="search"
+          onSubmit={handleSearch}
+        >
+          <svg className="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search"
+          />
+        </form>
 
-            <label htmlFor="nav-search" className="sr-only">
-              Search
-            </label>
-            <input
-              id="nav-search"
-              type="search"
-              name="q"
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setShowSuggestions(e.target.value.trim().length > 0);
-              }}
-              onFocus={() => setShowSuggestions(searchQuery.trim().length > 0)}
-              aria-label="Search"
-              placeholder="Search stories, topics..."
-              className="w-56 bg-transparent text-sm outline-none placeholder-gray-500"
-            />
-          </form>
-
-          {/* Desktop search suggestions */}
-          {showSuggestions && searchSuggestions.length > 0 && (
-            <div className="hidden sm:block absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded shadow-lg max-h-48 overflow-y-auto z-50">
-              {searchSuggestions.map((suggestion, idx) => (
-                <button
-                  key={idx}
-                  onClick={(e) => handleSearch(e, suggestion)}
-                  className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
-                >
-                  <div className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    {suggestion}
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Right side - language + menu */}
-        <div ref={menuRef} className="relative flex items-center gap-3">
-          {/* Mobile search icon (visible on small screens) */}
+        {/* Right side */}
+        <div className="navbar-right" ref={menuRef}>
+          {/* Mobile search toggle */}
           <button
-            type="button"
-            className="sm:hidden p-2 rounded hover:bg-gray-100"
-            aria-label="Open search"
+            className="navbar-icon-btn mobile-only"
             onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+            aria-label="Search"
           >
-            <svg
-              className="w-5 h-5 text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
             </svg>
           </button>
 
-          {/* <div className="flex items-center gap-2 px-3 py-1 rounded text-sm bg-gray-100">
-            <span className="font-medium text-sm">Bangla</span>
-            <select
-              name="language"
-              id="language-select"
-              aria-label="Language selector"
-              defaultValue="bn"
-              className="bg-transparent text-sm outline-none"
-            >
-              <option value="bn">BN</option>
-              <option value="en">EN</option>
-            </select>
-          </div> */}
+          {/* Write button */}
+          {user && (
+            <Link to="/write" className="navbar-write-btn desktop-only">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+              <span>Write</span>
+            </Link>
+          )}
 
+          {/* Avatar / Menu toggle */}
           <button
-            type="button"
-            className="p-2 hover:bg-gray-100 rounded cursor-pointer"
-            aria-haspopup="true"
-            aria-controls="nav-menu"
+            className="navbar-avatar-btn"
+            onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((prev) => !prev)}
           >
-            <span className="sr-only">Toggle menu</span>
-            <svg
-              className="w-5 h-5 text-gray-700"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
+            {user ? (
+              <div className="navbar-avatar">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="" />
+                ) : (
+                  <span>{user.name?.[0]?.toUpperCase()}</span>
+                )}
+              </div>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
           </button>
 
-          {/* Dropdown menu positioned under the toggle */}
-          <div
-            id="nav-menu"
-            role="menu"
-            aria-label="Primary"
-            className={`${
-              menuOpen ? "block" : "hidden"
-            } absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded shadow-md z-50`}
-          >
-            <nav className="flex flex-col p-2">
+          {/* Dropdown menu */}
+          {menuOpen && (
+            <div className="navbar-dropdown">
               {user ? (
                 <>
-                  <Link
-                    to="/dashboard"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    📝 ড্যাশবোর্ড
+                  <div className="navbar-dropdown-user">
+                    <p className="dropdown-name">{user.name}</p>
+                    <p className="dropdown-email">@{user.username || user.email}</p>
+                  </div>
+                  <hr />
+                  <Link to="/write" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+                    ✍️ Write a Story
                   </Link>
-                  <Link
-                    to="/profile"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    👤 প্রোফাইল
+                  <Link to="/dashboard" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+                    📊 Dashboard
                   </Link>
-                  <hr className="my-2" />
-                  <Link
-                    to="/about"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    আমাদের সম্পর্কে
+                  <Link to="/profile" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+                    👤 Profile Settings
                   </Link>
-                  <Link
-                    to="/contact"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    যোগাযোগ
-                  </Link>
-                  <Link
-                    to="/privacy"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    গোপনীয়তা
-                  </Link>
-                  <Link
-                    to="/help"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    সাহায্য
-                  </Link>
-                  <hr className="my-2" />
+                  <hr />
+                  <Link to="/about" className="dropdown-item" onClick={() => setMenuOpen(false)}>About</Link>
+                  <Link to="/help" className="dropdown-item" onClick={() => setMenuOpen(false)}>Help</Link>
+                  <hr />
                   <button
-                    onClick={() => {
-                      logout();
-                      setMenuOpen(false);
-                    }}
-                    className="px-3 py-2 rounded text-sm hover:bg-red-50 text-red-600 font-medium"
+                    className="dropdown-item dropdown-logout"
+                    onClick={() => { logout(); setMenuOpen(false); }}
                   >
-                    লগ আউট
+                    Sign Out
                   </button>
                 </>
               ) : (
                 <>
-                  <Link
-                    to="/login"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100 font-medium text-blue-600"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    লগইন
+                  <Link to="/login" className="dropdown-item font-medium" onClick={() => setMenuOpen(false)}>
+                    Sign In
                   </Link>
-                  <Link
-                    to="/register"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100 font-medium text-green-600"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    রেজিস্টার
+                  <Link to="/register" className="dropdown-item text-green" onClick={() => setMenuOpen(false)}>
+                    Create Account
                   </Link>
-                  <hr className="my-2" />
-                  <Link
-                    to="/about"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    আমাদের সম্পর্কে
-                  </Link>
-                  <Link
-                    to="/contact"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    যোগাযোগ
-                  </Link>
-                  <Link
-                    to="/privacy"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    গোপনীয়তা
-                  </Link>
-                  <Link
-                    to="/help"
-                    role="menuitem"
-                    className="px-3 py-2 rounded text-sm hover:bg-gray-100"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    সাহায্য
-                  </Link>
+                  <hr />
+                  <Link to="/about" className="dropdown-item" onClick={() => setMenuOpen(false)}>About</Link>
+                  <Link to="/help" className="dropdown-item" onClick={() => setMenuOpen(false)}>Help</Link>
                 </>
               )}
-            </nav>
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

@@ -2,19 +2,27 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
 export default function ProfilePage() {
-  const { user, updateProfile, logout } = useAuth();
-  const [form, setForm] = useState({ name: "", avatar: "", bio: "" });
+  const { user, updateProfile } = useAuth();
+  const [form, setForm] = useState({
+    name: "",
+    avatar: "",
+    bio: "",
+    about: "",
+    website: "",
+  });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    document.title = "My Profile";
+    document.title = "Profile Settings — mkbs.media";
     if (user) {
       setForm({
         name: user.name || "",
         avatar: user.avatar || "",
         bio: user.bio || "",
+        about: user.about || "",
+        website: user.website || "",
       });
     }
   }, [user]);
@@ -40,110 +48,118 @@ export default function ProfilePage() {
   if (!user) return null;
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-semibold text-gray-900">
-              আমার প্রোফাইল
-            </h1>
-            <button
-              onClick={logout}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-            >
-              লগ আউট
-            </button>
-          </div>
+    <main className="profile-page">
+      <div className="profile-container" style={{ maxWidth: 520 }}>
+        <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 32, letterSpacing: "-0.3px" }}>
+          Profile Settings
+        </h1>
 
-          {error && (
-            <div className="mb-4 text-sm text-red-700 bg-red-50 p-4 rounded">
-              {error}
-            </div>
-          )}
+        {error && <div className="auth-error" style={{ marginBottom: 16 }}>{error}</div>}
+        {message && (
+          <div className="dashboard-message success" style={{ marginBottom: 16 }}>{message}</div>
+        )}
 
-          {message && (
-            <div className="mb-4 text-sm text-green-700 bg-green-50 p-4 rounded">
-              {message}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email (read-only) */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                ইমেইল
-              </label>
-              <input
-                type="email"
-                value={user.email}
-                disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                আপনার ইমেইল পরিবর্তন করা যাবে না
-              </p>
-            </div>
-
-            {/* Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                নাম
-              </label>
-              <input
-                type="text"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
-                placeholder="আপনার নাম"
-              />
-            </div>
-
-            {/* Avatar */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                প্রোফাইল ছবি (URL)
-              </label>
-              <input
-                type="url"
-                value={form.avatar}
-                onChange={(e) => setForm({ ...form, avatar: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
-                placeholder="https://example.com/avatar.jpg"
-              />
-              {form.avatar && (
-                <div className="mt-3">
-                  <img
-                    src={form.avatar}
-                    alt="Avatar preview"
-                    className="h-20 w-20 rounded-full object-cover border border-gray-300"
-                  />
-                </div>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* Avatar preview */}
+          <div style={{ textAlign: "center", marginBottom: 8 }}>
+            <div className="profile-avatar-large" style={{ margin: "0 auto 12px" }}>
+              {form.avatar ? (
+                <img src={form.avatar} alt="" />
+              ) : (
+                <span>{form.name?.[0]?.toUpperCase() || "?"}</span>
               )}
             </div>
+          </div>
 
-            {/* Bio */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                বায়োগ্রাফি
-              </label>
-              <textarea
-                value={form.bio}
-                onChange={(e) => setForm({ ...form, bio: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
-                placeholder="আপনার সংক্ষিপ্ত পরিচয়"
-                rows={4}
-              />
-            </div>
+          {/* Email (read-only) */}
+          <div>
+            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
+              Email
+            </label>
+            <input
+              type="email"
+              value={user.email}
+              disabled
+              className="auth-input"
+              style={{ background: "var(--color-bg-alt)", cursor: "not-allowed" }}
+            />
+          </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-60"
-            >
-              {loading ? "আপডেট হচ্ছে..." : "প্রোফাইল আপডেট করুন"}
-            </button>
-          </form>
-        </div>
+          {/* Name */}
+          <div>
+            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
+              Name
+            </label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className="auth-input"
+              placeholder="Your name"
+            />
+          </div>
+
+          {/* Avatar URL */}
+          <div>
+            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
+              Avatar URL
+            </label>
+            <input
+              type="url"
+              value={form.avatar}
+              onChange={(e) => setForm({ ...form, avatar: e.target.value })}
+              className="auth-input"
+              placeholder="https://example.com/avatar.jpg"
+            />
+          </div>
+
+          {/* Bio */}
+          <div>
+            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
+              Short Bio (160 chars)
+            </label>
+            <input
+              type="text"
+              value={form.bio}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+              className="auth-input"
+              placeholder="A brief description of yourself"
+              maxLength={160}
+            />
+          </div>
+
+          {/* About */}
+          <div>
+            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
+              About
+            </label>
+            <textarea
+              value={form.about}
+              onChange={(e) => setForm({ ...form, about: e.target.value })}
+              className="comment-input"
+              placeholder="Tell your story..."
+              rows={4}
+            />
+          </div>
+
+          {/* Website */}
+          <div>
+            <label style={{ display: "block", fontSize: 14, fontWeight: 500, color: "var(--color-text-secondary)", marginBottom: 6 }}>
+              Website
+            </label>
+            <input
+              type="url"
+              value={form.website}
+              onChange={(e) => setForm({ ...form, website: e.target.value })}
+              className="auth-input"
+              placeholder="https://yourwebsite.com"
+            />
+          </div>
+
+          <button type="submit" className="btn-primary" disabled={loading} style={{ justifyContent: "center", padding: "12px 24px", fontSize: 16, marginTop: 8 }}>
+            {loading ? "Updating..." : "Save Changes"}
+          </button>
+        </form>
       </div>
     </main>
   );

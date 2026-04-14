@@ -1,114 +1,76 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function RegisterPage() {
+  const { register, user, error } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { register } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const [localError, setLocalError] = useState(null);
 
-  const submit = async (e) => {
+  useEffect(() => {
+    if (user) navigate("/");
+    document.title = "Join — mkbs.media";
+  }, [user, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    if (!name || !email || !password)
-      return setError("Please fill all fields.");
-    if (password !== confirm) return setError("Passwords do not match.");
+    if (!name || !email || !password) return setLocalError("All fields are required");
+    if (password.length < 6) return setLocalError("Password must be at least 6 characters");
     try {
-      setLoading(true);
+      setSubmitting(true);
+      setLocalError(null);
       await register(name, email, password);
       navigate("/");
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setLocalError(err.message || "Registration failed");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-md p-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-1">রেজিস্টার</h1>
-        <p className="text-sm text-gray-500 mb-6">
-          একটি নতুন অ্যাকাউন্ট তৈরি করুন
-        </p>
-
-        {error && (
-          <div className="mb-4 text-sm text-red-700 bg-red-50 p-3 rounded">
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={submit} className="space-y-4">
-          <label className="block">
-            <span className="text-sm text-gray-600">পূর্ণ নাম</span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-200 bg-gray-50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              placeholder="আপনার নাম"
-              required
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm text-gray-600">ইমেইল</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-200 bg-gray-50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              placeholder="you@example.com"
-              required
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm text-gray-600">পাসওয়ার্ড</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-200 bg-gray-50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              placeholder="আপনার পাসওয়ার্ড"
-              required
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm text-gray-600">
-              পাসওয়ার্ড নিশ্চিত করুন
-            </span>
-            <input
-              type="password"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-200 bg-gray-50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              placeholder="পুনরায় পাসওয়ার্ড"
-              required
-            />
-          </label>
-
-          <button
-            type="submit"
-            className="w-full py-2 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 disabled:opacity-60"
-            disabled={loading}
-          >
-            {loading ? "Processing..." : "রেজিস্টার"}
+    <main className="auth-page">
+      <div className="auth-container">
+        <h1 className="auth-title">Join mkbs.media</h1>
+        <form onSubmit={handleSubmit} className="auth-form">
+          {(localError || error) && (
+            <div className="auth-error">{localError || error}</div>
+          )}
+          <input
+            type="text"
+            placeholder="Your name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="auth-input"
+            autoComplete="name"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="auth-input"
+            autoComplete="email"
+          />
+          <input
+            type="password"
+            placeholder="Password (min 6 characters)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="auth-input"
+            autoComplete="new-password"
+          />
+          <button type="submit" className="auth-submit" disabled={submitting}>
+            {submitting ? "Creating account..." : "Create Account"}
           </button>
         </form>
-
-        <div className="mt-4 text-sm text-gray-600">
-          আগে থেকেই অ্যাকাউন্ট আছে?{" "}
-          <Link to="/login" className="text-blue-600 hover:underline">
-            লগইন করুন
-          </Link>
-        </div>
+        <p className="auth-link">
+          Already have an account? <Link to="/login">Sign in</Link>
+        </p>
       </div>
     </main>
   );

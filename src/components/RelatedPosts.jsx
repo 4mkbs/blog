@@ -1,18 +1,18 @@
 import { Link } from "react-router-dom";
-import PostCard from "../components/PostCard";
-import SkeletonCard from "../components/SkeletonCard";
 
 export default function RelatedPosts({ posts, loading }) {
   if (loading) {
     return (
-      <section className="py-12 border-t border-gray-200">
-        <div className="container-wrapper">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">
-            Related Articles
-          </h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonCard key={i} />
+      <section className="related-section">
+        <div className="related-inner">
+          <h2 className="related-title">More Stories</h2>
+          <div className="related-grid">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="post-card-skeleton">
+                <div className="skeleton-rect" />
+                <div className="skeleton-line w80" />
+                <div className="skeleton-line w60" />
+              </div>
             ))}
           </div>
         </div>
@@ -20,29 +20,33 @@ export default function RelatedPosts({ posts, loading }) {
     );
   }
 
-  if (!posts || posts.length === 0) return null;
+  if (!posts?.length) return null;
 
   return (
-    <section className="py-12 border-t border-gray-200">
-      <div className="container-wrapper">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          Related Articles
-        </h2>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {posts.slice(0, 4).map((post) => (
-            <PostCard key={post._id} post={post} />
+    <section className="related-section">
+      <div className="related-inner">
+        <h2 className="related-title">More Stories</h2>
+        <div className="related-grid">
+          {posts.map((post) => (
+            <Link
+              key={post._id}
+              to={`/post/${post.slug || post._id}`}
+              className="related-card"
+            >
+              {post.coverImage && (
+                <img src={post.coverImage} alt="" className="related-card-img" loading="lazy" />
+              )}
+              <div className="related-card-body">
+                <h3>{post.title}</h3>
+                <div className="related-card-meta">
+                  <span>{post.author?.name || "Anonymous"}</span>
+                  <span className="meta-dot">·</span>
+                  <span>{post.readingTime || 1} min</span>
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
-        {posts.length > 4 && (
-          <div className="mt-8 text-center">
-            <Link
-              to="/"
-              className="inline-flex items-center px-6 py-3 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-500 transition"
-            >
-              View More Articles
-            </Link>
-          </div>
-        )}
       </div>
     </section>
   );
