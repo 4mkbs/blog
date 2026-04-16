@@ -1,205 +1,156 @@
-import { useEffect, useState, useMemo } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { usePosts } from "../hooks/usePosts";
-import { useCategories } from "../hooks/useCategories";
-import { useTags } from "../hooks/useTags";
 import PostCard from "../components/PostCard";
+// FeaturedPostCard removed for uniform masonry
+import SkeletonCard from "../components/SkeletonCard";
 
 export default function HomePage() {
+  const { posts, loading, error } = usePosts();
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
-  const categoryFilter = searchParams.get("category") || "";
-  const tagFilter = searchParams.get("tag") || "";
-  const [page, setPage] = useState(1);
 
-  const { posts, loading, error, pagination } = usePosts({
-    search: searchQuery,
-    category: categoryFilter,
-    tag: tagFilter,
-    page,
-    limit: 12,
-  });
+  // Filter posts based on search query
+  const filteredPosts = useMemo(() => {
+    if (!searchQuery.trim()) return posts;
 
-  const { categories } = useCategories();
-  const { tags: trendingTags } = useTags();
-
-  // Show top 12 tags
-  const topTags = useMemo(() => {
-    return (trendingTags || []).slice(0, 12);
-  }, [trendingTags]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [searchQuery, categoryFilter, tagFilter]);
+    const query = searchQuery.toLowerCase();
+    return posts.filter(
+      (post) =>
+        post.title?.toLowerCase().includes(query) ||
+        post.content?.toLowerCase().includes(query) ||
+        post.excerpt?.toLowerCase().includes(query) ||
+        post.category?.toLowerCase().includes(query) ||
+        post.tags?.some((tag) => tag.toLowerCase().includes(query))
+    );
+  }, [posts, searchQuery]);
 
   useEffect(() => {
     document.title = searchQuery
-      ? `Search: ${searchQuery} — mkbs.media`
-      : "mkbs.media — Discover Stories";
+      ? `Search: ${searchQuery} - mkbs.media`
+      : "mkbs.media - Knowledge & Stories";
   }, [searchQuery]);
 
-  // Staggered animation for post cards
   useEffect(() => {
+    // Simple mount animation: reveal items with staggered fade-up whenever posts change
     const els = document.querySelectorAll(".post-grid-item");
     els.forEach((el, i) => {
-      el.style.transition = "opacity 400ms ease, transform 400ms ease";
-      el.style.transitionDelay = `${i * 50}ms`;
+      // ensure a smooth transition even if CSS wasn't set
+      el.style.transition =
+        "opacity 420ms cubic-bezier(.2,.9,.2,1), transform 420ms cubic-bezier(.2,.9,.2,1)";
+      el.style.transitionDelay = `${i * 45}ms`;
+      // trigger the animation (initial styles provided inline below)
       requestAnimationFrame(() => {
         el.style.opacity = "1";
-        el.style.transform = "translateY(0)";
+        el.style.transform = "translateY(0) scale(1)";
       });
     });
-  }, [posts]);
+  }, [filteredPosts]);
 
-  const activeFilters = searchQuery || categoryFilter || tagFilter;
+  if (error) {
+    return (
+      <main className="min-h-screen bg-white">
+        <section className="w-full mx-auto px-2 sm:px-3 lg:px-4 py-10">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-5 text-center max-w-xl mx-auto">
+            <p className="text-red-700 font-medium">Failed to load posts</p>
+            <p className="text-sm text-red-600 mt-1">{error}</p>
+          </div>
+        </section>
+      </main>
+    );
+  }
 
-  return (
-    <main className="home-page">
-      {/* Category Navigation */}
-      {!activeFilters && (
-        <nav className="category-nav">
-          <div className="category-nav-inner">
-            <Link
-              to="/"
-              className={`category-tab ${!categoryFilter ? "active" : ""}`}
-            >
-              For You
-            </Link>
-            {categories.map((cat) => (
-              <Link
-                key={cat._id}
-                to={`/?category=${cat.slug}`}
-                className={`category-tab ${categoryFilter === cat.slug ? "active" : ""}`}
-              >
-                {cat.name}
-              </Link>
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <section className="w-full mx-auto px-1 sm:px-2 lg:px-3 py-6">
+          <div className="grid gap-3 sm:gap-4 md:gap-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <SkeletonCard key={i} />
             ))}
           </div>
-        </nav>
-      )}
+        </section>
+      </main>
+    );
+  }
 
-      <div className="home-layout">
-        {/* Main content */}
-        <section className="home-main">
-          {/* Active filter header */}
-          {activeFilters && (
-            <div className="filter-header">
-              <div>
-                <h2 className="filter-title">
-                  {searchQuery && `Results for "${searchQuery}"`}
-                  {categoryFilter && `Category: ${categoryFilter}`}
-                  {tagFilter && `Tag: #${tagFilter}`}
-                </h2>
-                <p className="filter-count">{pagination.total} stories found</p>
-              </div>
-              <Link to="/" className="filter-clear">Clear filters</Link>
-            </div>
-          )}
+  // Show search results message
+  const showSearchMessage = searchQuery.trim() !== "";
 
-          {/* Error state */}
-          {error && (
-            <div className="home-error">
-              <p>Failed to load stories: {error}</p>
-            </div>
-          )}
+  return (
+    <main className="bg-[#F5F9FE]">
+      <section className="w-full mx-auto px-1 sm:px-2 lg:px-3 py-6">
+        {/* Search results header */}
+        {showSearchMessage && (
+          <div className="mb-6 px-2">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Search results for "{searchQuery}"
+            </h2>
+            <p className="text-sm text-gray-600 mt-1">
+              {filteredPosts.length}{" "}
+              {filteredPosts.length === 1 ? "post" : "posts"} found
+            </p>
+          </div>
+        )}
 
-          {/* Loading state */}
-          {loading && (
-            <div className="posts-grid">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="post-card-skeleton">
-                  <div className="skeleton-rect" />
-                  <div className="skeleton-line w80" />
-                  <div className="skeleton-line w60" />
-                  <div className="skeleton-line w40" />
-                </div>
-              ))}
-            </div>
-          )}
+        {/* No results message */}
+        {showSearchMessage && filteredPosts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-gray-600 text-lg">
+              No posts found matching your search.
+            </p>
+            <a
+              href="/"
+              className="inline-block mt-4 text-blue-600 hover:text-blue-700 underline"
+            >
+              Clear search
+            </a>
+          </div>
+        )}
 
-          {/* Posts grid */}
-          {!loading && posts.length > 0 && (
-            <>
-              <div className="posts-grid">
-                {posts.map((post) => (
+        {/* Responsive grid: 2/3/4/5 columns on sm/md/lg/xl.
+            Second item (index 1) spans two columns on screens >= sm. */}
+        {filteredPosts.length > 0 && (
+          <div className="grid gap-3 sm:gap-4 md:gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xxl:grid-cols-5">
+            {filteredPosts.map((post, idx) => {
+              const isSecond = idx === 1;
+              const desc = String(post.description || "");
+              const long = desc.length > 140;
+
+              return (
+                <div
+                  key={post._id}
+                  className={[
+                    "post-grid-item rounded-lg overflow-hidden",
+                    // make second card span two columns on multi-column layouts
+                    isSecond
+                      ? "sm:col-span-2 md:col-span-2 lg:col-span-2 xl:col-span-2"
+                      : "",
+                  ].join(" ")}
+                  // start invisible and slightly translated; the useEffect above will reveal them
+                  style={{
+                    opacity: 0,
+                    transform: "translateY(8px) scale(0.995)",
+                  }}
+                >
+                  {/* Card container controls min-height to create small/large visual weight
+                      and adds a subtle shadow + hover lift for polish */}
                   <div
-                    key={post._id}
-                    className="post-grid-item"
-                    style={{ opacity: 0, transform: "translateY(12px)" }}
+                    className={[
+                      "bg-white shadow-sm hover:shadow-md transition-shadow duration-200 ease-out",
+                      long ? "min-h-[220px]" : "min-h-[140px]",
+                      // keep content flowing so cards vary naturally if PostCard grows
+                      "flex flex-col",
+                    ].join(" ")}
                   >
                     <PostCard post={post} />
                   </div>
-                ))}
-              </div>
-
-              {/* Pagination */}
-              {pagination.pages > 1 && (
-                <div className="pagination">
-                  <button
-                    className="pagination-btn"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page <= 1}
-                  >
-                    ← Previous
-                  </button>
-                  <span className="pagination-info">
-                    Page {pagination.page} of {pagination.pages}
-                  </span>
-                  <button
-                    className="pagination-btn"
-                    onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
-                    disabled={page >= pagination.pages}
-                  >
-                    Next →
-                  </button>
                 </div>
-              )}
-            </>
-          )}
-
-          {/* Empty state */}
-          {!loading && posts.length === 0 && (
-            <div className="home-empty">
-              <h3>No stories found</h3>
-              <p>Try a different search or browse categories above.</p>
-              {activeFilters && (
-                <Link to="/" className="btn-primary">Browse All Stories</Link>
-              )}
-            </div>
-          )}
-        </section>
-
-        {/* Sidebar */}
-        <aside className="home-sidebar">
-          {/* Trending Tags */}
-          <div className="sidebar-section">
-            <h3 className="sidebar-title">Trending Topics</h3>
-            <div className="sidebar-tags">
-              {topTags.map((tag) => (
-                <Link
-                  key={tag._id}
-                  to={`/?tag=${tag.slug}`}
-                  className="sidebar-tag"
-                >
-                  #{tag.name}
-                </Link>
-              ))}
-            </div>
+              );
+            })}
           </div>
-
-          {/* Reading recommendation */}
-          <div className="sidebar-section">
-            <h3 className="sidebar-title">Start Writing</h3>
-            <p className="sidebar-text">
-              Share your ideas with the world. Create beautiful stories with our
-              Medium-style editor.
-            </p>
-            <Link to="/write" className="btn-primary sidebar-btn">
-              Write a Story
-            </Link>
-          </div>
-        </aside>
-      </div>
+        )}
+      </section>
     </main>
   );
 }

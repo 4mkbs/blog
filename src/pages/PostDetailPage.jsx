@@ -1,171 +1,170 @@
 import { useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { sanitizeHtml, sanitizeText } from "../utils/sanitize";
 import { usePost, useRelatedPosts } from "../hooks/usePosts";
-import BlockRenderer from "../components/BlockRenderer";
-import LikeButton from "../components/LikeButton";
-import CommentSection from "../components/CommentSection";
-import FollowButton from "../components/FollowButton";
 import RelatedPosts from "../components/RelatedPosts";
 
 export default function PostDetailPage() {
   const { slug } = useParams();
   const { post, loading, error } = usePost(slug);
-  const { posts: relatedPosts, loading: relatedLoading } = useRelatedPosts(post?._id);
+  const { posts: relatedPosts, loading: relatedLoading } = useRelatedPosts(
+    post?._id
+  );
 
   useEffect(() => {
     if (post?.title) {
-      document.title = `${post.title} — mkbs.media`;
+      document.title = `${post.title} - mkbs.media`;
     }
     window.scrollTo(0, 0);
   }, [post]);
 
   if (loading) {
     return (
-      <main className="post-detail-page">
-        <div className="post-container">
-          <div className="post-skeleton">
-            <div className="skeleton-line w40" />
-            <div className="skeleton-line w80" />
-            <div className="skeleton-rect" />
-            <div className="skeleton-line w100" />
-            <div className="skeleton-line w100" />
-            <div className="skeleton-line w60" />
+      <div className="container-wrapper py-12">
+        <div className="max-w-4xl mx-auto space-y-4 animate-pulse">
+          <div className="h-8 bg-gray-300 rounded w-1/4" />
+          <div className="h-12 bg-gray-300 rounded w-3/4" />
+          <div className="aspect-video bg-gray-300 rounded-xl" />
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-300 rounded" />
+            <div className="h-4 bg-gray-300 rounded" />
+            <div className="h-4 bg-gray-300 rounded w-5/6" />
           </div>
         </div>
-      </main>
+      </div>
     );
   }
 
   if (error || !post) {
     return (
-      <main className="post-detail-page">
-        <div className="post-container">
-          <div className="post-error">
-            <h2>Post Not Found</h2>
-            <p>{error || "The story you are looking for does not exist."}</p>
-            <Link to="/" className="btn-primary">Back to Home</Link>
-          </div>
+      <div className="container-wrapper py-12">
+        <div className="max-w-2xl mx-auto bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+          <h2 className="text-2xl font-bold text-red-700 mb-2">
+            Post Not Found
+          </h2>
+          <p className="text-red-600 mb-4">
+            {error || "The post you are looking for does not exist."}
+          </p>
+          <Link
+            to="/"
+            className="inline-block px-6 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-500 transition"
+          >
+            Back to Home
+          </Link>
         </div>
-      </main>
+      </div>
     );
   }
 
-  const { title, content, coverImage, category, tags, author, createdAt, readingTime, likesCount, viewCount } = post;
-
+  const { title, content, coverImage, category, tags, author, createdAt } =
+    post;
   const formattedDate = new Date(createdAt).toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
   });
+  const placeholderImage =
+    "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&auto=format&fit=crop";
 
   return (
-    <main className="post-detail-page">
-      <article className="post-container">
-        {/* Article Header */}
-        <header className="post-header">
-          {/* Author info */}
-          <div className="post-author-bar">
-            <Link to={`/@${author?.username}`} className="post-author-link">
-              <div className="post-author-avatar">
-                {author?.avatar ? (
-                  <img src={author.avatar} alt={author.name} />
-                ) : (
-                  <span>{author?.name?.[0]?.toUpperCase() || "A"}</span>
-                )}
-              </div>
-              <div className="post-author-info">
-                <span className="post-author-name">{author?.name || "Anonymous"}</span>
-                <div className="post-meta-line">
-                  <time dateTime={createdAt}>{formattedDate}</time>
-                  <span className="meta-dot">·</span>
-                  <span>{readingTime || 1} min read</span>
-                  {viewCount > 0 && (
-                    <>
-                      <span className="meta-dot">·</span>
-                      <span>{viewCount} views</span>
-                    </>
-                  )}
-                </div>
-              </div>
+    <main className="bg-[#F5F9FE]">
+      {/* Article Header */}
+      <article className="py-8 md:py-12">
+        <div className="bg-white container-wrapper max-w-4xl border p-6 rounded-lg shadow-sm">
+          {/* Breadcrumb */}
+          <nav className="mb-4 text-sm text-gray-500">
+            <Link to="/" className="hover:text-brand-600">
+              Home
             </Link>
-            <FollowButton userId={author?._id} />
-          </div>
+            {category && (
+              <>
+                <span className="mx-2">/</span>
+                <span className="text-gray-700">{category}</span>
+              </>
+            )}
+          </nav>
+
+          {/* Category Badge */}
+          {category && (
+            <div className="mb-4">
+              <span className="badge text-sm">{category}</span>
+            </div>
+          )}
 
           {/* Title */}
-          <h1 className="post-title">{title}</h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+            {sanitizeText(title)}
+          </h1>
 
-          {/* Category */}
-          {category && (
-            <Link to={`/?category=${category.slug}`} className="post-category-badge">
-              {category.name}
-            </Link>
-          )}
-        </header>
-
-        {/* Cover Image */}
-        {coverImage && (
-          <div className="post-cover">
-            <img src={coverImage} alt={title} />
-          </div>
-        )}
-
-        {/* Content */}
-        <div className="post-content">
-          <BlockRenderer blocks={content} />
-        </div>
-
-        {/* Tags */}
-        {tags && tags.length > 0 && (
-          <div className="post-tags">
-            {tags.map((tag) => (
-              <Link
-                key={tag._id || tag.slug}
-                to={`/?tag=${tag.slug}`}
-                className="post-tag"
-              >
-                {tag.name}
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {/* Like & Share */}
-        <div className="post-actions-bar">
-          <LikeButton postId={post._id} initialCount={likesCount || 0} />
-          <div className="post-share">
-            {["Twitter", "Facebook", "LinkedIn"].map((platform) => (
-              <button key={platform} className="share-btn" aria-label={`Share on ${platform}`}>
-                {platform}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Author Card */}
-        <div className="post-author-card">
-          <Link to={`/@${author?.username}`} className="author-card-avatar">
-            {author?.avatar ? (
-              <img src={author.avatar} alt={author.name} />
-            ) : (
-              <span>{author?.name?.[0]?.toUpperCase() || "A"}</span>
-            )}
-          </Link>
-          <div className="author-card-info">
-            <div className="author-card-header">
-              <Link to={`/@${author?.username}`} className="author-card-name">
-                {author?.name}
-              </Link>
-              <FollowButton userId={author?._id} />
+          {/* Meta */}
+          <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-8 pb-8 border-b border-gray-200">
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-semibold">
+                {author?.name?.[0]?.toUpperCase() || "A"}
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">
+                  {author?.name || "Anonymous"}
+                </p>
+                <time dateTime={createdAt} className="text-xs">
+                  {formattedDate}
+                </time>
+              </div>
             </div>
-            {author?.bio && <p className="author-card-bio">{author.bio}</p>}
-            {author?.followersCount > 0 && (
-              <span className="author-card-followers">{author.followersCount} Followers</span>
-            )}
+          </div>
+
+          {/* Cover Image */}
+          {(coverImage || placeholderImage) && (
+            <div className="mb-8 rounded-xl overflow-hidden">
+              <img
+                src={coverImage || placeholderImage}
+                alt={title}
+                className="w-full h-auto"
+              />
+            </div>
+          )}
+
+          {/* Content */}
+          <div className="prose-custom">
+            <div
+              dangerouslySetInnerHTML={{
+                __html: sanitizeHtml(content.replace(/\n/g, "<br/>")),
+              }}
+            />
+          </div>
+
+          {/* Tags */}
+          {tags && tags.length > 0 && (
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 cursor-pointer"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Share Section */}
+          <div className="mt-8 pt-8 border-t border-gray-200 flex items-center gap-4">
+            <span className="text-sm font-medium text-gray-700">Share:</span>
+            <div className="flex gap-2">
+              {["Twitter", "Facebook", "LinkedIn"].map((platform) => (
+                <button
+                  key={platform}
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  aria-label={`Share on ${platform}`}
+                >
+                  {platform}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-
-        {/* Comments */}
-        <CommentSection postId={post._id} />
       </article>
 
       {/* Related Posts */}

@@ -1,66 +1,85 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
-  const { login, user, error } = useAuth();
-  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [localError, setLocalError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
-  useEffect(() => {
-    if (user) navigate("/");
-    document.title = "Sign In — mkbs.media";
-  }, [user, navigate]);
-
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    if (!email || !password) return setLocalError("All fields are required");
+    setError(null);
+    if (!email || !password)
+      return setError("Please provide email and password.");
     try {
-      setSubmitting(true);
-      setLocalError(null);
+      setLoading(true);
       await login(email, password);
       navigate("/");
     } catch (err) {
-      setLocalError(err.message || "Login failed");
+      setError(err.message || "Login failed");
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <main className="auth-page">
-      <div className="auth-container">
-        <h1 className="auth-title">Welcome back.</h1>
-        <form onSubmit={handleSubmit} className="auth-form">
-          {(localError || error) && (
-            <div className="auth-error">{localError || error}</div>
-          )}
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="auth-input"
-            autoComplete="email"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="auth-input"
-            autoComplete="current-password"
-          />
-          <button type="submit" className="auth-submit" disabled={submitting}>
-            {submitting ? "Signing in..." : "Sign In"}
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-md p-8">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-1">লগইন</h1>
+        <p className="text-sm text-gray-500 mb-6">
+          আপনার ইমেল ও পাসওয়ার্ড দিয়ে প্রবেশ করুন
+        </p>
+
+        {error && (
+          <div className="mb-4 text-sm text-red-700 bg-red-50 p-3 rounded">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={submit} className="space-y-4">
+          <label className="block">
+            <span className="text-sm text-gray-600">ইমেইল</span>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-200 bg-gray-50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="you@example.com"
+              required
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm text-gray-600">পাসওয়ার্ড</span>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-200 bg-gray-50 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              placeholder="আপনার পাসওয়ার্ড"
+              required
+            />
+          </label>
+
+          <button
+            type="submit"
+            className="w-full py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-60"
+            disabled={loading}
+          >
+            {loading ? "Processing..." : "লগইন"}
           </button>
         </form>
-        <p className="auth-link">
-          No account? <Link to="/register">Create one</Link>
-        </p>
+
+        <div className="mt-4 text-sm text-gray-600">
+          নতুন ব্যবহারকারী?{" "}
+          <Link to="/register" className="text-blue-600 hover:underline">
+            রেজিস্টার করুন
+          </Link>
+        </div>
       </div>
     </main>
   );
