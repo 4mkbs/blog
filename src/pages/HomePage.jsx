@@ -53,171 +53,153 @@ export default function HomePage() {
 
   const activeFilters = searchQuery || categoryFilter || tagFilter;
 
-  const stats = [
-    { label: "Stories", value: pagination.total || posts.length || 0 },
-    { label: "Topics", value: categories.length || 0 },
-    { label: "Tags", value: topTags.length || 0 },
-  ];
-
   return (
-    <main className="content-page">
-      <section className="content-shell">
-        {/* Category Navigation */}
-        {!activeFilters && (
-          <nav className="category-nav home-category-nav">
-            <div className="category-nav-inner">
+    <main className="home-page">
+      {/* Category Navigation */}
+      {!activeFilters && (
+        <nav className="category-nav">
+          <div className="category-nav-inner">
+            <Link
+              to="/"
+              className={`category-tab ${!categoryFilter ? "active" : ""}`}
+            >
+              For You
+            </Link>
+            {categories.map((cat) => (
               <Link
-                to="/"
-                className={`category-tab ${!categoryFilter ? "active" : ""}`}
+                key={cat._id}
+                to={`/?category=${cat.slug}`}
+                className={`category-tab ${categoryFilter === cat.slug ? "active" : ""}`}
               >
-                For You
+                {cat.name}
               </Link>
-              {categories.map((cat) => (
+            ))}
+          </div>
+        </nav>
+      )}
+
+      <div className="home-layout">
+        {/* Main content */}
+        <section className="home-main">
+          {/* Active filter header */}
+          {activeFilters && (
+            <div className="filter-header">
+              <div>
+                <h2 className="filter-title">
+                  {searchQuery && `Results for "${searchQuery}"`}
+                  {categoryFilter && `Category: ${categoryFilter}`}
+                  {tagFilter && `Tag: #${tagFilter}`}
+                </h2>
+                <p className="filter-count">{pagination.total} stories found</p>
+              </div>
+              <Link to="/" className="filter-clear">Clear filters</Link>
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && (
+            <div className="home-error">
+              <p>Failed to load stories: {error}</p>
+            </div>
+          )}
+
+          {/* Loading state */}
+          {loading && (
+            <div className="posts-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="post-card-skeleton">
+                  <div className="skeleton-rect" />
+                  <div className="skeleton-line w80" />
+                  <div className="skeleton-line w60" />
+                  <div className="skeleton-line w40" />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Posts grid */}
+          {!loading && posts.length > 0 && (
+            <>
+              <div className="posts-grid">
+                {posts.map((post) => (
+                  <div
+                    key={post._id}
+                    className="post-grid-item"
+                    style={{ opacity: 0, transform: "translateY(12px)" }}
+                  >
+                    <PostCard post={post} />
+                  </div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {pagination.pages > 1 && (
+                <div className="pagination">
+                  <button
+                    className="pagination-btn"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1}
+                  >
+                    ← Previous
+                  </button>
+                  <span className="pagination-info">
+                    Page {pagination.page} of {pagination.pages}
+                  </span>
+                  <button
+                    className="pagination-btn"
+                    onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+                    disabled={page >= pagination.pages}
+                  >
+                    Next →
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Empty state */}
+          {!loading && posts.length === 0 && (
+            <div className="home-empty">
+              <h3>No stories found</h3>
+              <p>Try a different search or browse categories above.</p>
+              {activeFilters && (
+                <Link to="/" className="btn-primary">Browse All Stories</Link>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* Sidebar */}
+        <aside className="home-sidebar">
+          {/* Trending Tags */}
+          <div className="sidebar-section">
+            <h3 className="sidebar-title">Trending Topics</h3>
+            <div className="sidebar-tags">
+              {topTags.map((tag) => (
                 <Link
-                  key={cat._id}
-                  to={`/?category=${cat.slug}`}
-                  className={`category-tab ${
-                    categoryFilter === cat.slug ? "active" : ""
-                  }`}
+                  key={tag._id}
+                  to={`/?tag=${tag.slug}`}
+                  className="sidebar-tag"
                 >
-                  {cat.name}  
+                  #{tag.name}
                 </Link>
               ))}
             </div>
-          </nav>
-        )}
+          </div>
 
-        <div className="home-layout">
-          {/* Main content */}
-          <section className="home-main">
-            {/* Active filter header */}
-            {activeFilters && (
-              <div className="filter-header content-filter-header">
-                <div>
-                  <h2 className="filter-title">
-                    {searchQuery && `Results for "${searchQuery}"`}
-                    {categoryFilter && `Category: ${categoryFilter}`}
-                    {tagFilter && `Tag: #${tagFilter}`}
-                  </h2>
-                  <p className="filter-count">
-                    {pagination.total} stories found
-                  </p>
-                </div>
-                <Link to="/" className="filter-clear">
-                  Clear filters
-                </Link>
-              </div>
-            )}
-
-            {/* Error state */}
-            {error && (
-              <div className="home-error">
-                <p>Failed to load stories: {error}</p>
-              </div>
-            )}
-
-            {/* Loading state */}
-            {loading && (
-              <div className="posts-grid">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="post-card-skeleton">
-                    <div className="skeleton-rect" />
-                    <div className="skeleton-line w80" />
-                    <div className="skeleton-line w60" />
-                    <div className="skeleton-line w40" />
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Posts grid */}
-            {!loading && posts.length > 0 && (
-              <>
-                <div className="posts-grid home-posts-grid">
-                  {posts.map((post) => (
-                    <div
-                      key={post._id}
-                      className="post-grid-item"
-                      style={{ opacity: 0, transform: "translateY(12px)" }}
-                    >
-                      <PostCard post={post} />
-                    </div>
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {pagination.pages > 1 && (
-                  <div className="pagination">
-                    <button
-                      className="pagination-btn"
-                      onClick={() => setPage((p) => Math.max(1, p - 1))}
-                      disabled={page <= 1}
-                    >
-                      ← Previous
-                    </button>
-                    <span className="pagination-info">
-                      Page {pagination.page} of {pagination.pages}
-                    </span>
-                    <button
-                      className="pagination-btn"
-                      onClick={() =>
-                        setPage((p) => Math.min(pagination.pages, p + 1))
-                      }
-                      disabled={page >= pagination.pages}
-                    >
-                      Next →
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* Empty state */}
-            {!loading && posts.length === 0 && (
-              <div className="home-empty">
-                <h3>No stories found</h3>
-                <p>Try a different search or browse categories above.</p>
-                {activeFilters && (
-                  <Link to="/" className="btn-primary">
-                    Browse All Stories
-                  </Link>
-                )}
-              </div>
-            )}
-          </section>
-
-          {/* Sidebar */}
-          <aside className="home-sidebar">
-            {/* Trending Tags */}
-            <div className="sidebar-section sidebar-panel">
-              <h3 className="sidebar-title">Trending Topics</h3>
-              <div className="sidebar-tags">
-                {topTags.map((tag) => (
-                  <Link
-                    key={tag._id}
-                    to={`/?tag=${tag.slug}`}
-                    className="sidebar-tag"
-                  >
-                    #{tag.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Reading recommendation */}
-            <div className="sidebar-section sidebar-panel">
-              <h3 className="sidebar-title">Start Writing</h3>
-              <p className="sidebar-text">
-                Share your ideas with the world. Create beautiful stories with
-                our Medium-style editor.
-              </p>
-              <Link to="/write" className="btn-primary sidebar-btn">
-                Write a Story
-              </Link>
-            </div>
-          </aside>
-        </div>
-      </section>
+          {/* Reading recommendation */}
+          <div className="sidebar-section">
+            <h3 className="sidebar-title">Start Writing</h3>
+            <p className="sidebar-text">
+              Share your ideas with the world. Create beautiful stories with our
+              Medium-style editor.
+            </p>
+            <Link to="/write" className="btn-primary sidebar-btn">
+              Write a Story
+            </Link>
+          </div>
+        </aside>
+      </div>
     </main>
   );
 }

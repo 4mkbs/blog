@@ -18,10 +18,8 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password)
-      return setLocalError("All fields are required");
-    if (password.length < 6)
-      return setLocalError("Password must be at least 6 characters");
+    if (!name || !email || !password) return setLocalError("All fields are required");
+    if (password.length < 6) return setLocalError("Password must be at least 6 characters");
     try {
       setSubmitting(true);
       setLocalError(null);
@@ -36,25 +34,13 @@ export default function RegisterPage() {
 
   return (
     <main className="auth-page">
-      <div className="auth-container enhanced">
-        <div className="auth-intro">
-          <p className="auth-kicker">Create account</p>
-          <h1 className="auth-title">Join mkbs.media</h1>
-          <p className="auth-subtitle">
-            Publish stories, build your profile, and connect with readers.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="auth-form card">
+      <div className="auth-container">
+        <h1 className="auth-title">Join mkbs.media</h1>
+        <form onSubmit={handleSubmit} className="auth-form">
           {(localError || error) && (
             <div className="auth-error">{localError || error}</div>
           )}
-
-          <label className="field-label" htmlFor="register-name">
-            Your name
-          </label>
           <input
-            id="register-name"
             type="text"
             placeholder="Your name"
             value={name}
@@ -62,38 +48,26 @@ export default function RegisterPage() {
             className="auth-input"
             autoComplete="name"
           />
-
-          <label className="field-label" htmlFor="register-email">
-            Email
-          </label>
           <input
-            id="register-email"
             type="email"
-            placeholder="you@example.com"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="auth-input"
             autoComplete="email"
           />
-
-          <label className="field-label" htmlFor="register-password">
-            Password
-          </label>
           <input
-            id="register-password"
             type="password"
-            placeholder="At least 6 characters"
+            placeholder="Password (min 6 characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="auth-input"
             autoComplete="new-password"
           />
-
           <button type="submit" className="auth-submit" disabled={submitting}>
-            {submitting ? "Creating account..." : "Create account"}
+            {submitting ? "Creating account..." : "Create Account"}
           </button>
         </form>
-
         <p className="auth-link">
           Already have an account? <Link to="/login">Sign in</Link>
         </p>

@@ -26,9 +26,7 @@ export default function UserProfilePage() {
         // Get posts by this user
         try {
           const userPostsRes = await fetch(
-            `${
-              import.meta.env.VITE_API_URL || "http://localhost:5000/api"
-            }/posts/user/${username}`
+            `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/posts/user/${username}`
           );
           const userPostsData = await userPostsRes.json();
           setPosts(userPostsData.posts || []);
@@ -73,9 +71,7 @@ export default function UserProfilePage() {
           <div className="profile-error">
             <h2>User not found</h2>
             <p>{error || "The profile you're looking for doesn't exist."}</p>
-            <Link to="/" className="btn-primary">
-              Back to Home
-            </Link>
+            <Link to="/" className="btn-primary">Back to Home</Link>
           </div>
         </div>
       </main>
@@ -83,11 +79,10 @@ export default function UserProfilePage() {
   }
 
   return (
-    <main className="content-page profile-page">
-      <div className="content-shell narrow profile-shell">
+    <main className="profile-page">
+      <div className="profile-container">
         {/* Profile Header */}
-        <header className="profile-header profile-hero-card">
-          <p className="content-kicker">Public profile</p>
+        <header className="profile-header">
           <div className="profile-avatar-large">
             {profile.avatar ? (
               <img src={profile.avatar} alt={profile.name} />
@@ -116,19 +111,14 @@ export default function UserProfilePage() {
           <FollowButton userId={profile._id} />
 
           {profile.website && (
-            <a
-              href={profile.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="profile-website"
-            >
+            <a href={profile.website} target="_blank" rel="noopener noreferrer" className="profile-website">
               {profile.website.replace(/https?:\/\//, "")}
             </a>
           )}
         </header>
 
         {/* User's posts */}
-        <section className="profile-posts profile-posts-card">
+        <section className="profile-posts">
           <h2 className="profile-posts-title">Stories by {profile.name}</h2>
           {posts.length > 0 ? (
             <div className="profile-posts-grid">

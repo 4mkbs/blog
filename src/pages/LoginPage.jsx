@@ -32,51 +32,32 @@ export default function LoginPage() {
 
   return (
     <main className="auth-page">
-      <div className="auth-container enhanced">
-        <div className="auth-intro">
-          <p className="auth-kicker">Sign in</p>
-          <h1 className="auth-title">Welcome back</h1>
-          <p className="auth-subtitle">
-            Continue writing, managing your stories, and growing your audience.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="auth-form card">
+      <div className="auth-container">
+        <h1 className="auth-title">Welcome back.</h1>
+        <form onSubmit={handleSubmit} className="auth-form">
           {(localError || error) && (
             <div className="auth-error">{localError || error}</div>
           )}
-
-          <label className="field-label" htmlFor="login-email">
-            Email
-          </label>
           <input
-            id="login-email"
             type="email"
-            placeholder="you@example.com"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="auth-input"
             autoComplete="email"
           />
-
-          <label className="field-label" htmlFor="login-password">
-            Password
-          </label>
           <input
-            id="login-password"
             type="password"
-            placeholder="Your password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="auth-input"
             autoComplete="current-password"
           />
-
           <button type="submit" className="auth-submit" disabled={submitting}>
-            {submitting ? "Signing in..." : "Sign in"}
+            {submitting ? "Signing in..." : "Sign In"}
           </button>
         </form>
-
         <p className="auth-link">
           No account? <Link to="/register">Create one</Link>
         </p>

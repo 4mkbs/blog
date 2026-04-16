@@ -10,9 +10,7 @@ import RelatedPosts from "../components/RelatedPosts";
 export default function PostDetailPage() {
   const { slug } = useParams();
   const { post, loading, error } = usePost(slug);
-  const { posts: relatedPosts, loading: relatedLoading } = useRelatedPosts(
-    post?._id
-  );
+  const { posts: relatedPosts, loading: relatedLoading } = useRelatedPosts(post?._id);
 
   useEffect(() => {
     if (post?.title) {
@@ -45,27 +43,14 @@ export default function PostDetailPage() {
           <div className="post-error">
             <h2>Post Not Found</h2>
             <p>{error || "The story you are looking for does not exist."}</p>
-            <Link to="/" className="btn-primary">
-              Back to Home
-            </Link>
+            <Link to="/" className="btn-primary">Back to Home</Link>
           </div>
         </div>
       </main>
     );
   }
 
-  const {
-    title,
-    content,
-    coverImage,
-    category,
-    tags,
-    author,
-    createdAt,
-    readingTime,
-    likesCount,
-    viewCount,
-  } = post;
+  const { title, content, coverImage, category, tags, author, createdAt, readingTime, likesCount, viewCount } = post;
 
   const formattedDate = new Date(createdAt).toLocaleDateString("en-US", {
     month: "long",
@@ -74,31 +59,10 @@ export default function PostDetailPage() {
   });
 
   return (
-    <main className="content-page post-detail-page">
-      <article className="post-container post-detail-shell">
+    <main className="post-detail-page">
+      <article className="post-container">
         {/* Article Header */}
         <header className="post-header">
-          <div className="post-hero-row">
-            {category && (
-              <Link
-                to={`/?category=${category.slug}`}
-                className="post-category-badge post-category-badge-hero"
-              >
-                {category.name}
-              </Link>
-            )}
-            <div className="post-read-meta">
-              <span>{readingTime || 1} min read</span>
-              {viewCount > 0 && <span>{viewCount} views</span>}
-            </div>
-          </div>
-
-          <h1 className="post-title post-title-hero">{title}</h1>
-
-          <p className="post-summary">
-            {author?.bio || "A calm, readable story layout built for focus."}
-          </p>
-
           {/* Author info */}
           <div className="post-author-bar">
             <Link to={`/@${author?.username}`} className="post-author-link">
@@ -110,9 +74,7 @@ export default function PostDetailPage() {
                 )}
               </div>
               <div className="post-author-info">
-                <span className="post-author-name">
-                  {author?.name || "Anonymous"}
-                </span>
+                <span className="post-author-name">{author?.name || "Anonymous"}</span>
                 <div className="post-meta-line">
                   <time dateTime={createdAt}>{formattedDate}</time>
                   <span className="meta-dot">·</span>
@@ -128,17 +90,27 @@ export default function PostDetailPage() {
             </Link>
             <FollowButton userId={author?._id} />
           </div>
+
+          {/* Title */}
+          <h1 className="post-title">{title}</h1>
+
+          {/* Category */}
+          {category && (
+            <Link to={`/?category=${category.slug}`} className="post-category-badge">
+              {category.name}
+            </Link>
+          )}
         </header>
 
         {/* Cover Image */}
         {coverImage && (
-          <div className="post-cover post-cover-hero">
+          <div className="post-cover">
             <img src={coverImage} alt={title} />
           </div>
         )}
 
         {/* Content */}
-        <div className="post-content post-content-reading">
+        <div className="post-content">
           <BlockRenderer blocks={content} />
         </div>
 
@@ -158,15 +130,11 @@ export default function PostDetailPage() {
         )}
 
         {/* Like & Share */}
-        <div className="post-actions-bar post-actions-soft">
+        <div className="post-actions-bar">
           <LikeButton postId={post._id} initialCount={likesCount || 0} />
           <div className="post-share">
             {["Twitter", "Facebook", "LinkedIn"].map((platform) => (
-              <button
-                key={platform}
-                className="share-btn"
-                aria-label={`Share on ${platform}`}
-              >
+              <button key={platform} className="share-btn" aria-label={`Share on ${platform}`}>
                 {platform}
               </button>
             ))}
@@ -191,9 +159,7 @@ export default function PostDetailPage() {
             </div>
             {author?.bio && <p className="author-card-bio">{author.bio}</p>}
             {author?.followersCount > 0 && (
-              <span className="author-card-followers">
-                {author.followersCount} Followers
-              </span>
+              <span className="author-card-followers">{author.followersCount} Followers</span>
             )}
           </div>
         </div>
